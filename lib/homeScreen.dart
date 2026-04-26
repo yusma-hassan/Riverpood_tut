@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final counter = StateProvider<int>((ref){
   return 0;
 });
+final switchProvider = StateProvider<bool>((ref){
+return false;
+});
 class HomeScreen extends ConsumerStatefulWidget{
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -22,7 +25,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             
             Consumer(builder: (context, ref, child) {
               final count = ref.watch(counter);
+              
               return  Text(count.toString(),style: TextStyle(fontSize: 25),);
+            },),
+            Consumer(builder: (context, ref, child) {
+              final switcher = ref.watch(switchProvider);
+
+              return Switch(value:switcher, onChanged: (value) {
+               ref.read(switchProvider.notifier).state = value;
+            },);
+
+
             },),
            
             Row(
@@ -37,7 +50,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 }
                 , child: Text("-")),
               ],
-            )
+            ),
+             
+              
+            
+           
           ],        )
       ),
 
