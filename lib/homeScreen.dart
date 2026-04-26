@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final lec = Provider<String>((ref){
-  return "Dart";
+final counter = StateProvider<int>((ref){
+  return 0;
 });
 class HomeScreen extends ConsumerStatefulWidget{
   @override
@@ -11,13 +11,34 @@ class HomeScreen extends ConsumerStatefulWidget{
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext){
-    final online = ref.watch(lec);
+   
+    
     return Scaffold(
-    appBar: AppBar(title: Text("Riverpod")),
+    appBar: AppBar(title: Center(child: Text("Counter App"))),
       body: Center(
-        child: Container(
-          child: Text(online,style: TextStyle(fontSize: 30),),
-      ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            
+            Consumer(builder: (context, ref, child) {
+              final count = ref.watch(counter);
+              return  Text(count.toString(),style: TextStyle(fontSize: 25),);
+            },),
+           
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(onPressed: () {
+                  ref.read(counter.notifier).state ++ ;
+                }
+                , child: Text("+")),
+                ElevatedButton(onPressed: () {
+                  ref.read(counter.notifier).state -- ;
+                }
+                , child: Text("-")),
+              ],
+            )
+          ],        )
       ),
 
     );
