@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_tut/itmeProvider.dart';
 
-import 'package:riverpod_tut/slider_provider.dart';
+
 
 class HomeScreen extends ConsumerStatefulWidget {
   @override
@@ -9,79 +10,42 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  Widget build(BuildContext) {
+  Widget build(BuildContext context) {
+    
+    final item = ref.watch(itemProvider);
     print("build");
     return Scaffold(
       appBar: AppBar(title: Center(child: Text("Counter App"))),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Consumer(
-              builder: (context, ref, child) {
-                print("eye");
-                final slider = ref.watch(
-                    sliderProvider.select((state) => state.showPassword));
-                
-                return InkWell(
-                  child: Container(
-                    height: 200,
-                    width: 200,
-                    child:
-                        slider ? Icon(Icons.image) : Icon(Icons.remove_red_eye),
-                  ),
-                  onTap: () {
-                    final stateProvider = ref.read(sliderProvider.notifier);
-                    stateProvider.state =
-                        stateProvider.state.copyWith(showPassword: !slider);
-                  },
-                );
-              },
-            ),
-            Consumer(
-              builder: (context, ref, child) {
-                print("slider");
-                final slider =
-                    ref.watch(sliderProvider.select((state) => state.slider));
-
-                
-                return Container(
-                  height: 200,
-                  width: 200,
-                  color: Colors.pink.shade100.withOpacity(slider),
-                );
-              },
-            ),
-            Consumer(
-              builder: (context, ref, child) {
-                final slider = ref.watch(sliderProvider);
-               
-                return Slider(
-                  value: slider.slider,
-                  onChanged: (value) {
-                    final stateProvider = ref.read(sliderProvider.notifier);
-                    stateProvider.state =
-                        stateProvider.state.copyWith(slider: value);
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+      body:
+         item.isEmpty ? Center(child: Text("No data found")) : 
+          ListView.builder(
+             itemCount : item.length ,
+            itemBuilder: (context, index) {
+             
+              final itemDetail =  item[index];
+              return ListTile(
+                title: Text(itemDetail.name),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                     IconButton(onPressed: () {
+                      ref.read(itemProvider.notifier).updateItem(itemDetail.id,"new Name");
+                    }, icon: Icon(Icons.edit),),
+                    IconButton(onPressed: () {
+                      ref.read(itemProvider.notifier).deleteItem(itemDetail.id);
+                    }, icon: Icon(Icons.delete),),
+                    
+                  ],
+                ),
+              );
+            },),
+          
+      floatingActionButton:  FloatingActionButton(
+                    onPressed: () {
+            ref.read(itemProvider.notifier).addItem("Syeda ");
+                    },
+                    child: Icon(Icons.add),),
+      
+           );
   }
 }
-// class HomeScreen extends ConsumerWidget{
-//   Widget build(BuildContext,WidgetRef ref){
-//     final online = ref.watch(lec);
-//     return Scaffold(
-//     appBar: AppBar(title: Text("Riverpod")),
-//       body: Center(
-//         child: Container(
-//           child: Text(online,style: TextStyle(fontSize: 30),),
-//       ),
-//       ),
-//     );
-//   }
-// }
