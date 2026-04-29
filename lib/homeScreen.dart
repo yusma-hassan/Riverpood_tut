@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_tut/itmeProvider.dart';
+
+import 'package:riverpod_tut/provider/favourite_Provider.dart';
 
 
 
@@ -12,37 +13,56 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     
-    final item = ref.watch(itemProvider);
+    final favList = ref.watch(favProvider);
     print("build");
     return Scaffold(
-      appBar: AppBar(title: Center(child: Text("Counter App"))),
-      body:
-         item.isEmpty ? Center(child: Text("No data found")) : 
+      appBar: AppBar(title: Center(child: Text("Counter App")),
+      actions: [
+        PopupMenuButton<String>(
+          onSelected: (value) {
+            ref.read(favProvider.notifier).favourite(value);
+          },
+          itemBuilder: (context) {
+           return [
+            PopupMenuItem(
+              value: "All",
+              child: Text("All")),
+              PopupMenuItem(
+              value: "Favourite",
+              child: Text("Favourite"))
+           ];
+        },)
+      ],),
+      body:Column(
+        children: [
+          TextField(
+            
+            decoration: InputDecoration(
+              hintText: "Search",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12)
+              ),
+            ),
+            onChanged: (value) {
+               ref.read(favProvider.notifier).filter(value);
+            },
+          ),
+          Expanded(child: 
           ListView.builder(
-             itemCount : item.length ,
+            itemCount: favList.filteredItems.length,
             itemBuilder: (context, index) {
-             
-              final itemDetail =  item[index];
-              return ListTile(
-                title: Text(itemDetail.name),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                     IconButton(onPressed: () {
-                      ref.read(itemProvider.notifier).updateItem(itemDetail.id,"new Name");
-                    }, icon: Icon(Icons.edit),),
-                    IconButton(onPressed: () {
-                      ref.read(itemProvider.notifier).deleteItem(itemDetail.id);
-                    }, icon: Icon(Icons.delete),),
-                    
-                  ],
-                ),
-              );
-            },),
-          
+            final item = favList.filteredItems[index];
+            return ListTile(
+              title: Text(item.name),
+              trailing: Icon(item.favourite ? Icons.favorite : Icons.favorite_border),
+            );
+          },))
+        ],
+      ),
+         
       floatingActionButton:  FloatingActionButton(
                     onPressed: () {
-            ref.read(itemProvider.notifier).addItem("Syeda ");
+            ref.read(favProvider.notifier).addItem();
                     },
                     child: Icon(Icons.add),),
       
