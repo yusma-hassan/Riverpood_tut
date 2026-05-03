@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_tut/provider/async_notifier_provider.dart';
 
-import 'package:riverpod_tut/provider/favourite_Provider.dart';
+
 
 
 
@@ -13,58 +14,23 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     
-    final favList = ref.watch(favProvider);
-    print("build");
+  final greetingAsync = ref.watch(greetingAsyncProvider);
+  final greetingAsyncNotifier = ref.watch(greetingAsyncProvider.notifier);
     return Scaffold(
       appBar: AppBar(title: Center(child: Text("Counter App")),
-      actions: [
-        PopupMenuButton<String>(
-          onSelected: (value) {
-            ref.read(favProvider.notifier).favourite(value);
-          },
-          itemBuilder: (context) {
-           return [
-            PopupMenuItem(
-              value: "All",
-              child: Text("All")),
-              PopupMenuItem(
-              value: "Favourite",
-              child: Text("Favourite"))
-           ];
-        },)
-      ],),
-      body:Column(
-        children: [
-          TextField(
-            
-            decoration: InputDecoration(
-              hintText: "Search",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12)
-              ),
-            ),
-            onChanged: (value) {
-               ref.read(favProvider.notifier).filter(value);
-            },
-          ),
-          Expanded(child: 
-          ListView.builder(
-            itemCount: favList.filteredItems.length,
-            itemBuilder: (context, index) {
-            final item = favList.filteredItems[index];
-            return ListTile(
-              title: Text(item.name),
-              trailing: Icon(item.favourite ? Icons.favorite : Icons.favorite_border),
-            );
-          },))
-        ],
+     
+      ),
+      body:Center(
+        child: greetingAsync.when(
+          skipLoadingOnRefresh: false,
+          data: (g) =>Text(g,style: TextStyle(fontSize: 24),) , 
+          error: (e, _) => Text("Error: $e"),
+           loading: () => CircularProgressIndicator(),),
       ),
          
       floatingActionButton:  FloatingActionButton(
-                    onPressed: () {
-            ref.read(favProvider.notifier).addItem();
-                    },
-                    child: Icon(Icons.add),),
+                    onPressed:greetingAsyncNotifier.refreshGreeting,
+                    child: Icon(Icons.refresh),),
       
            );
   }
